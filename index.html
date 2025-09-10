@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Health Diagnosis</title>
+    <style>
+        /* General Reset */
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: url('https://via.placeholder.com/1920x1080.png?text=Doctor+Theme') no-repeat center center/cover;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+            color: #333;
+        }
+        .login-container, .diagnosis-container {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 30px 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 400px;
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        h1.stylish-heading {
+            text-align: center;
+            font-size: 28px;
+            color: #3498db;
+            margin-bottom: 20px;
+            font-family: 'Georgia', serif;
+            letter-spacing: 1.5px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+        }
+        input, button {
+            width: 100%;
+            padding: 12px;
+            margin: 5px 0 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+        input:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        .forgot-password {
+            text-align: right;
+            font-size: 14px;
+        }
+        .forgot-password a {
+            color: #3498db;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .forgot-password a:hover {
+            color: #2980b9;
+            text-decoration: underline;
+        }
+        .hidden {
+            display: none;
+        }
+        .ai-box {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-left: 4px solid #3498db;
+            border-radius: 5px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .ai-box h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        .ai-box p {
+            margin: 10px 0 0;
+            color: #555;
+        }
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .login-container, .diagnosis-container {
+                padding: 20px 15px;
+            }
+            h1.stylish-heading {
+                font-size: 24px;
+            }
+            h2 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Section -->
+    <div class="login-container" id="login-section">
+        <h2>Login</h2>
+        <label for="username">Username</label>
+        <input type="text" id="username" placeholder="Enter your username">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="Enter your email">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Enter your password">
+        <button id="login-button">Login</button>
+        <button id="signup-button">Sign Up</button>
+        <div class="forgot-password">
+            <a href="#">Forgot Password?</a>
+        </div>
+    </div>
+
+    <!-- AI Diagnosis Section -->
+    <div class="diagnosis-container hidden" id="ai-section">
+        <!-- Stylish Heading -->
+        <h1 class="stylish-heading">AI Powered Health Diagnosis</h1>
+        <h2>Welcome, <span id="display-username"></span>!</h2>
+        <label for="symptoms">Enter your symptoms:</label>
+        <input type="text" id="symptoms" placeholder="e.g., cough, fever">
+        <button id="diagnose-button">Diagnose</button>
+        <button id="search-again-button" class="hidden">Search Again</button>
+        <div class="ai-box">
+            <h3>Diagnosis:</h3>
+            <p id="diagnosis-result">Please enter your symptoms above.</p>
+        </div>
+    </div>
+
+    <script>
+        const loginButton = document.getElementById('login-button');
+        const signupButton = document.getElementById('signup-button');
+        const loginSection = document.getElementById('login-section');
+        const aiSection = document.getElementById('ai-section');
+        const usernameInput = document.getElementById('username');
+        const displayUsername = document.getElementById('display-username');
+        const diagnoseButton = document.getElementById('diagnose-button');
+        const searchAgainButton = document.getElementById('search-again-button');
+        const symptomsInput = document.getElementById('symptoms');
+        const diagnosisResult = document.getElementById('diagnosis-result');
+
+        const symptomResponses = {
+            cough: "You may have a cold. Drink warm fluids and rest.",
+            fever: "You may have a fever. Take paracetamol and stay hydrated.",
+            headache: "You may be stressed or dehydrated. Drink water and relax.",
+            sorethroat: "You may have a throat infection. Gargle with salt water.",
+            fatigue: "Ensure you're sleeping well and eating nutritious food.",
+            rash: "Apply a soothing lotion and avoid irritants.",
+            nausea: "Eat light meals and avoid strong odors.",
+            dizziness: "Sit down, stay hydrated, and rest.",
+            stomachpain: "Avoid spicy foods and rest.",
+            runnynose: "Use a tissue and stay warm.",
+            chestpain: "Seek medical attention immediately.",
+            backpain: "Apply heat and rest.",
+            jointpain: "Take a mild pain reliever and rest the joint.",
+            vomiting: "Drink small sips of water and rest.",
+            diarrhea: "Stay hydrated with ORS or electrolyte solutions.",
+            coldsweats: "Rest and stay warm.",
+            shortnessofbreath: "Seek immediate medical attention.",
+            earpain: "Keep the ear clean and avoid water exposure.",
+            toothache: "Visit a dentist for proper treatment.",
+            eyepain: "Rest your eyes and avoid screens."
+        };
+
+        // Handle Login Button Click
+        loginButton.addEventListener('click', () => {
+            const username = usernameInput.value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+
+            if (username && email && password) {
+                displayUsername.textContent = username;
+                loginSection.classList.add('hidden');
+                aiSection.classList.remove('hidden');
+            } else {
+                alert('Please fill in all the fields.');
+            }
+        });
+
+        // Handle Sign Up Button Click
+        signupButton.addEventListener('click', () => {
+            alert('Sign Up functionality is not implemented yet.');
+        });
+
+        // Handle Diagnose Button Click
+        diagnoseButton.addEventListener('click', () => {
+            const symptomsInputValue = symptomsInput.value.toLowerCase();
+            if (!symptomsInputValue) {
+                diagnosisResult.textContent = "Please enter your symptoms.";
+                return;
+            }
+
+            const symptoms = symptomsInputValue.split(',').map(s => s.trim().replace(/\s+/g, ''));
+            const responses = [];
+
+            symptoms.forEach(symptom => {
+                if (symptomResponses[symptom]) {
+                    responses.push(symptomResponses[symptom]);
+                } else {
+                    responses.push(`No suggestions available for "${symptom}".`);
+                }
+            });
+
+            diagnosisResult.textContent = responses.join(' ');
+
+            // Show the Search Again Button
+            searchAgainButton.classList.remove('hidden');
+        });
+
+        // Handle Search Again Button Click
+        searchAgainButton.addEventListener('click', () => {
+            symptomsInput.value = '';
+            diagnosisResult.textContent = 'Please enter your symptoms above.';
+            searchAgainButton.classList.add('hidden');
+        });
+    </script>
+</body>
+</html>
